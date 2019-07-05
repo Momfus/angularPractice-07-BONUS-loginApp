@@ -30,6 +30,8 @@ export class AuthService {
 
   logout() {
 
+    localStorage.removeItem('token');
+
   }
 
   login( usuario: UsuarioModel ) {
@@ -109,6 +111,12 @@ export class AuthService {
     this.userToken = idToken;
     localStorage.setItem('token', idToken);
 
+    // Tiempo de expiración del token
+    const hoy = new Date();
+    hoy.setSeconds( 3600 );
+
+    localStorage.setItem('expira', hoy.getTime().toString() );
+
   }
 
   leerToken() {
@@ -125,6 +133,35 @@ export class AuthService {
     }
 
     return this.userToken;
+
+  }
+
+
+  estaAutenticado(): boolean {
+
+    // Si el token no existe (muy chico), no es valido
+    if ( this.userToken.length < 2 ) {
+
+      return false;
+
+    }
+
+    // Verificar si no expiro el token seteado
+    const expira = Number( localStorage.getItem('expira') );
+    const expiraDate = new Date();
+    expiraDate.setTime( expira );
+
+    // Si la fecha de expiración es mayor que la fecha actual => sigue siendo válido el token (sino se vuelve invalido)
+    if ( expiraDate > new Date() ) {
+
+      return true;
+
+    } else {
+
+      return false;
+
+    }
+
 
   }
 
